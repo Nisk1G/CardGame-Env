@@ -4,6 +4,7 @@ import player2
 import deck
 import card
 import run
+import numpy as np
 
 
 class CardGameEnv:
@@ -14,6 +15,7 @@ class CardGameEnv:
         #手札2・・・4~7
         #手札3・・・8~11
         self.action_space = spaces.Discrete(12)
+        """
         self.observation_space = spaces.Dict({
             "MyHP": spaces.Discrete(21),#0~20
             "EnemyHP": spaces.Discrete(21),
@@ -33,6 +35,36 @@ class CardGameEnv:
             "MyCard2CanAttack": spaces.Discrete(2),
             "MyCard3CanAttack": spaces.Discrete(2),
         })
+        
+        #dict型むりそう；；
+        self.observation_space = spaces.Dict(
+            dict(
+                MyHP = spaces.Box(low=0,high=20),
+                EnemyHP = spaces.Box(low=0,high=20),
+                MyCard1Attack = spaces.Box(low=0, high=5),
+                MyCard1HP = spaces.Box(low=0, high=5),
+                MyCard2Attack = spaces.Box(low=0, high=5),
+                MyCard2HP = spaces.Box(low=0, high=5),
+                MyCard3Attack = spaces.Box(low=0, high=5),
+                MyCard3HP = spaces.Box(low=0, high=5),
+                EnemyCard1Attack = spaces.Box(low=0, high=5),
+                EnemyCard1HP = spaces.Box(low=0, high=5),
+                EnemyCard2Attack = spaces.Box(low=0, high=5),
+                EnemyCard2HP = spaces.Box(low=0, high=5),
+                EnemyCard3Attack = spaces.Box(low=0, high=5),
+                EnemyCard3HP = spaces.Box(low=0, high=5),
+                MyCard1CanAttack = spaces.Box(low=0,high=1),
+                MyCard2CanAttack = spaces.Box(low=0,high=1),
+                MyCard3CanAttack = spaces.Box(low=0,high=1)
+            )
+        )
+        """
+        #これで行けなかったら終わり
+        LOW = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        HIGH = np.array([20,20,5,5,5,5,5,5,5,5,5,5,5,5,1,1,1])
+        self.observation_space = spaces.Box(low=LOW,high=HIGH)
+
+
         self.curr_episode = -1
         self.action_episode_memory=[]
 
@@ -64,6 +96,7 @@ class CardGameEnv:
         player = self.player
         
         #初期状態
+        '''
         s = {
             "MyHP": player.maxhp,
             "EnemyHP": player.enemy.maxhp,
@@ -72,7 +105,7 @@ class CardGameEnv:
             "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_played) else 0,
             "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_played) else 0,
             "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_played) else 0,
-            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            "MyCard3HP" : player.is_played[2].hp if 2 < len(player.is_played) else 0,
             "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
             "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
             "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
@@ -83,6 +116,40 @@ class CardGameEnv:
             "MyCard2CanAttack": 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
             "MyCard3CanAttack": 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
         }
+        
+        s = dict(
+            MyHP = player.maxhp,
+            EnemyHP = player.enemy.maxhp,
+            MyCard1Attack = player.is_played[0].attack if 0 < len(player.is_played) else 0,
+            MyCard1HP = player.is_played[0].hp if 0 < len(player.is_played) else 0,
+            MyCard2Attack = player.is_played[1].attack if 1 < len(player.is_played) else 0,
+            MyCard2HP = player.is_played[1].hp if 1 < len(player.is_played) else 0,
+            MyCard3Attack = player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            MyCard3HP = player.is_played[2].hp if 2 < len(player.is_played) else 0,
+            EnemyCard1Attack = player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
+            EnemyCard1HP = player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
+            EnemyCard2Attack = player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
+            EnemyCard2HP = player.enemy.is_played[1].hp if 1 < len(player.enemy.is_played) else 0,
+            EnemyCard3Attack = player.enemy.is_played[2].attack if 2 < len(player.enemy.is_played) else 0,
+            EnemyCard3HP = player.enemy.is_played[2].hp if 2 < len(player.enemy.is_played) else 0,
+            MyCard1CanAttack = 1 if 0 < len(player.is_played) and not player.is_played[0].is_used else 0,
+            MyCard2CanAttack = 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
+            MyCard3CanAttack = 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
+        )
+        '''
+        s = [
+            player.maxhp,
+            player.enemy.maxhp,
+            player.is_played[0].attack if 0 < len(player.is_played) else 0,
+            player.is_played[0].hp if 0 < len(player.is_played) else 0,
+            player.is_played[1].attack if 1 < len(player.is_played) else 0,
+            player.is_played[1].hp if 1 < len(player.is_played) else 0,
+            player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            player.is_played[2].hp if 2 < len(player.is_played) else 0,
+            player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
+            player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
+            
+        ]
 
         print("RESET STATE")
         print(s)
@@ -260,25 +327,25 @@ class CardGameEnv:
 
         player = self.player
 
-        s = {
-            "MyHP": player.hp,
-            "EnemyHP": player.enemy.hp,
-            "MyCard1Attack": player.is_played[0].attack if 0 < len(player.is_played) else 0,
-            "MyCard1HP" : player.is_played[0].hp if 0 < len(player.is_played) else 0,
-            "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_played) else 0,
-            "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_played) else 0,
-            "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_played) else 0,
-            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_played) else 0,
-            "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
-            "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
-            "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
-            "EnemyCard2HP" : player.enemy.is_played[1].hp if 1 < len(player.enemy.is_played) else 0,
-            "EnemyCard3Attack" : player.enemy.is_played[2].attack if 2 < len(player.enemy.is_played) else 0,
-            "EnemyCard3HP" : player.enemy.is_played[2].hp if 2 < len(player.enemy.is_played) else 0,
-            "MyCard1CanAttack": 1 if 0 < len(player.is_played) and not player.is_played[0].is_used else 0,
-            "MyCard2CanAttack": 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
-            "MyCard3CanAttack": 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
-        }
+        s = dict(
+            MyHP = player.hp,
+            EnemyHP = player.enemy.hp,
+            MyCard1Attack = player.is_played[0].attack if 0 < len(player.is_played) else 0,
+            MyCard1HP = player.is_played[0].hp if 0 < len(player.is_played) else 0,
+            MyCard2Attack = player.is_played[1].attack if 1 < len(player.is_played) else 0,
+            MyCard2HP = player.is_played[1].hp if 1 < len(player.is_played) else 0,
+            MyCard3Attack = player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            MyCard3HP = player.is_played[2].hp if 2 < len(player.is_played) else 0,
+            EnemyCard1Attack = player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
+            EnemyCard1HP = player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
+            EnemyCard2Attack = player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
+            EnemyCard2HP = player.enemy.is_played[1].hp if 1 < len(player.enemy.is_played) else 0,
+            EnemyCard3Attack = player.enemy.is_played[2].attack if 2 < len(player.enemy.is_played) else 0,
+            EnemyCard3HP = player.enemy.is_played[2].hp if 2 < len(player.enemy.is_played) else 0,
+            MyCard1CanAttack = 1 if 0 < len(player.is_played) and not player.is_played[0].is_used else 0,
+            MyCard2CanAttack = 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
+            MyCard3CanAttack = 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
+        )
         return s
     
     def close(self):
@@ -313,19 +380,36 @@ class CardGameEnv:
     '''
     def calculate_reward(self):
         player = self.player
-        reward = 0
+        #敵削った体力
+        reward = (player.enemy.maxhp - player.enemy.hp)
+        #print("reward")
+        #print(reward)
         #味方カードの評価値
         if len(player.is_played) > 0:
             for i in player.is_played:
+                #print("attack,hp")
+                #print(i.attack)
+                #print(i.hp)
                 reward += i.attack + i.hp
-        #敵削った体力
-        reward += (player.enemy.maxhp - player.enemy.hp) * 2.0
+                #print(reward)
         #敵カードの評価
-        if len(player.is_played) > 0:
+        if len(player.enemy.is_played) > 0:
             for i in player.enemy.is_played:
-                reward -= 2.0*(i.attack + i.hp)
+                #print("attack,hp")
+                #print(i.attack)
+                #print(i.hp)
+                tmp = 2.5*(i.attack + i.hp)
+                #print("tmp")
+                #print(tmp)
+                reward = reward - tmp
+                #print("reward")
+                #print(reward)
+
         #自分削られた体力
-        reward -= (player.maxhp - player.enemy.hp)*5.0
+        reward -= (player.maxhp - player.hp)*5
+
+        #print("reward")
+        #print(reward)
 
         #報酬のCliping
         if reward > 0:
