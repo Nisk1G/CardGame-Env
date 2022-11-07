@@ -59,31 +59,34 @@ class CardGameEnv:
 
     def reset(self):
         
+        self.setup_game()
+
         player = self.player
         
         #初期状態
         s = {
             "MyHP": player.maxhp,
             "EnemyHP": player.enemy.maxhp,
-            "MyCard1Attack": player.is_played[0].attack if 0 < len(player.is_player) else 0,
-            "MyCard1HP" : player.is_played[0].hp if 0 < len(player.is_player) else 0,
-            "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_player) else 0,
-            "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_player) else 0,
-            "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_player) else 0,
-            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_player) else 0,
-            "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_player) else 0,
-            "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_player) else 0,
-            "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_player) else 0,
-            "EnemyCard2HP" : player.enemy.is_played[1].hp if 1 < len(player.enemy.is_player) else 0,
-            "EnemyCard3Attack" : player.enemy.is_played[2].attack if 2 < len(player.enemy.is_player) else 0,
-            "EnemyCard3HP" : player.enemy.is_played[2].hp if 2 < len(player.enemy.is_player) else 0,
-            "MyCard1CanAttack": 1 if player.is_played[0].is_used or 0 < len(player.is_player) else 0,
-            "MyCard2CanAttack": 1 if player.is_played[1].is_used or 0 < len(player.is_player) else 0,
-            "MyCard3CanAttack": 1 if player.is_played[2].is_used or 0 < len(player.is_player) else 0,
+            "MyCard1Attack": player.is_played[0].attack if 0 < len(player.is_played) else 0,
+            "MyCard1HP" : player.is_played[0].hp if 0 < len(player.is_played) else 0,
+            "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_played) else 0,
+            "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_played) else 0,
+            "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
+            "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
+            "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
+            "EnemyCard2HP" : player.enemy.is_played[1].hp if 1 < len(player.enemy.is_played) else 0,
+            "EnemyCard3Attack" : player.enemy.is_played[2].attack if 2 < len(player.enemy.is_played) else 0,
+            "EnemyCard3HP" : player.enemy.is_played[2].hp if 2 < len(player.enemy.is_played) else 0,
+            "MyCard1CanAttack": 1 if 0 < len(player.is_played) and not player.is_played[0].is_used else 0,
+            "MyCard2CanAttack": 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
+            "MyCard3CanAttack": 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
         }
 
         print("RESET STATE")
         print(s)
+        #print("state.shape" + s.shape)
 
         return s
     
@@ -97,86 +100,124 @@ class CardGameEnv:
             #自分カード0が敵本体攻撃
             if player.is_played[0].is_used == False:
                 player.enemy.damage(player.is_played[0].attack)
-                player.is_played[0].is_used == True
+                player.is_played[0].is_used = True
             else:
                 print("味方のカード1はすでに行動済みです")
+
         elif action == 1:
-            #自分カード0が敵0攻撃
-            if player.is_played[0].is_used == False:
-                player.enemy.is_played[0].damage(player.is_played[0].attack)
-                player.is_played[0].is_used == True
+            if len(player.enemy.is_played) > 0:
+                #自分カード0が敵0攻撃
+                if player.is_played[0].is_used == False:
+                    player.enemy.is_played[0].damage(player.is_played[0].attack)
+                    player.is_played[0].is_used = True
+                else:
+                    print("味方のカード1はすでに行動済みです")
             else:
-                print("味方のカード1はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 2:
-            #自分0が敵1攻撃
-            if player.is_played[0].is_used == False:
-                player.enemy.is_played[1].damage(player.is_played[0].attack)
-                player.is_played[0].is_used == True
+            if len(player.enemy.is_played) > 1:
+                #自分0が敵1攻撃
+                if player.is_played[0].is_used == False:
+                    player.enemy.is_played[1].damage(player.is_played[0].attack)
+                    player.is_played[0].is_used = True
+                else:
+                    print("味方のカード1はすでに行動済みです")
             else:
-                print("味方のカード1はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 3:
-            #自分0が敵2攻撃
-            if player.is_played[0].is_used == False:
-                player.enemy.is_played[2].damage(player.is_played[0].attack)
-                player.is_played[0].is_used == True
+            if len(player.enemy.is_played) > 2:
+                #自分0が敵2攻撃
+                if player.is_played[0].is_used == False:
+                    player.enemy.is_played[2].damage(player.is_played[0].attack)
+                    player.is_played[0].is_used = True
+                else:
+                    print("味方のカード1はすでに行動済みです")
             else:
-                print("味方のカード1はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 4:
             #自分1が敵本体攻撃
             if player.is_played[1].is_used == False:
                 player.enemy.damage(player.is_played[1].attack)
-                player.is_played[1].is_used == True
+                player.is_played[1].is_used = True
             else:
                 print("味方のカード2はすでに行動済みです")
+
         elif action == 5:
-            #自分1が敵0攻撃
-            if player.is_played[1].is_used == False:
-                player.enemy.is_played[0].damage(player.is_played[1].attack)
-                player.is_played[1].is_used == True
+            if len(player.enemy.is_played) > 0:
+                #自分1が敵0攻撃
+                if player.is_played[1].is_used == False:
+                    player.enemy.is_played[0].damage(player.is_played[1].attack)
+                    player.is_played[1].is_used = True
+                else:
+                    print("味方のカード2はすでに行動済みです")
             else:
-                print("味方のカード2はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 6:
-            #自分1が敵1攻撃
-            if player.is_played[1].is_used == False:
-                player.enemy.is_played[1].damage(player.is_played[1].attack)
-                player.is_played[1].is_used == True
+            if len(player.enemy.is_played) > 1:
+                #自分1が敵1攻撃
+                if player.is_played[1].is_used == False:
+                    player.enemy.is_played[1].damage(player.is_played[1].attack)
+                    player.is_played[1].is_used = True
+                else:
+                    print("味方のカード2はすでに行動済みです")
             else:
-                print("味方のカード2はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 7:
-            #自分1が敵2攻撃
-            if player.is_played[1].is_used == False:
-                player.enemy.is_played[2].damage(player.is_played[1].attack)
-                player.is_played[1].is_used == True
+            if len(player.enemy.is_played) > 2:
+                #自分1が敵2攻撃
+                if player.is_played[1].is_used == False:
+                    player.enemy.is_played[2].damage(player.is_played[1].attack)
+                    player.is_played[1].is_used = True
+                else:
+                    print("味方のカード2はすでに行動済みです")
             else:
-                print("味方のカード2はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 8:
             #自分2が敵本体を攻撃
             if player.is_played[2].is_used == False:
                 player.enemy.damage(player.is_played[2].attack)
-                player.is_played[2].is_used == True
+                player.is_played[2].is_used = True
             else:
                 print("味方のカード3はすでに行動済みです")
+
         elif action == 9:
-            #自分2が敵0攻撃
-            if player.is_played[2].is_used == False:
-                player.enemy.is_played[0].damage(player.is_played[2].attack)
-                player.is_played[2].is_used == True
+            if len(player.enemy.is_played) > 0:
+                #自分2が敵0攻撃
+                if player.is_played[2].is_used == False:
+                    player.enemy.is_played[0].damage(player.is_played[2].attack)
+                    player.is_played[2].is_used = True
+                else:
+                    print("味方のカード3はすでに行動済みです")
             else:
-                print("味方のカード3はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 10:
-            #自分2が敵1攻撃
-            if player.is_played[2].is_used == False:
-                player.enemy.is_played[1].damage(player.is_played[2].attack)
-                player.is_played[2].is_used == True
+            if len(player.enemy.is_played) > 1:
+                #自分2が敵1攻撃
+                if player.is_played[2].is_used == False:
+                    player.enemy.is_played[1].damage(player.is_played[2].attack)
+                    player.is_played[2].is_used = True
+                else:
+                    print("味方のカード3はすでに行動済みです")
             else:
-                print("味方のカード3はすでに行動済みです")
+                print("敵カードがありません")
+
         elif action == 11:
-            #自分2が敵2攻撃
-            if player.is_played[2].is_used == False:
-                player.enemy.is_played[2].damage(player.is_played[2].attack)
-                player.is_played[2].is_used == True
+            if len(player.enemy.is_played) > 2:
+                #自分2が敵2攻撃
+                if player.is_played[2].is_used == False:
+                    player.enemy.is_played[2].damage(player.is_played[2].attack)
+                    player.is_played[2].is_used = True
+                else:
+                    print("味方のカード3はすでに行動済みです")
             else:
-                print("味方のカード3はすでに行動済みです")
+                print("敵カードがありません")
         else:
             print(action)
             print("未定義のActionです")
@@ -196,12 +237,18 @@ class CardGameEnv:
             #doneをTrueにする
             done = True
             #表示
-            print("reward" + reward)
-            print(self.curr_step + " : " + self.action_episode_memory)
+            print("reward")
+            print(reward)
+            print("self.curr_step")
+            print(self.curr_step)
+            #print("self.action_episode_memory")
+            #print(self.action_episode_memory)
         else:
             reward = 0
         
         observation = self.get_state()
+        print("state")
+        print(observation)
 
         return observation,reward,done,{}
 
@@ -216,21 +263,21 @@ class CardGameEnv:
         s = {
             "MyHP": player.hp,
             "EnemyHP": player.enemy.hp,
-            "MyCard1Attack": player.is_played[0].attack if 0 < len(player.is_player) else 0,
-            "MyCard1HP" : player.is_played[0].hp if 0 < len(player.is_player) else 0,
-            "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_player) else 0,
-            "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_player) else 0,
-            "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_player) else 0,
-            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_player) else 0,
-            "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_player) else 0,
-            "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_player) else 0,
-            "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_player) else 0,
-            "EnemyCard2HP" : player.enemy.is_played[1].hp if 1 < len(player.enemy.is_player) else 0,
-            "EnemyCard3Attack" : player.enemy.is_played[2].attack if 2 < len(player.enemy.is_player) else 0,
-            "EnemyCard3HP" : player.enemy.is_played[2].hp if 2 < len(player.enemy.is_player) else 0,
-            "MyCard1CanAttack": 1 if player.is_played[0].is_used or 0 < len(player.is_player) else 0,
-            "MyCard2CanAttack": 1 if player.is_played[1].is_used or 0 < len(player.is_player) else 0,
-            "MyCard3CanAttack": 1 if player.is_played[2].is_used or 0 < len(player.is_player) else 0,
+            "MyCard1Attack": player.is_played[0].attack if 0 < len(player.is_played) else 0,
+            "MyCard1HP" : player.is_played[0].hp if 0 < len(player.is_played) else 0,
+            "MyCard2Attack": player.is_played[1].attack if 1 < len(player.is_played) else 0,
+            "MyCard2HP" : player.is_played[1].hp if 1 < len(player.is_played) else 0,
+            "MyCard3Attack": player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            "MyCard3HP" : player.is_played[2].attack if 2 < len(player.is_played) else 0,
+            "EnemyCard1Attack" : player.enemy.is_played[0].attack if 0 < len(player.enemy.is_played) else 0,
+            "EnemyCard1HP" : player.enemy.is_played[0].hp if 0 < len(player.enemy.is_played) else 0,
+            "EnemyCard2Attack" : player.enemy.is_played[1].attack if 1 < len(player.enemy.is_played) else 0,
+            "EnemyCard2HP" : player.enemy.is_played[1].hp if 1 < len(player.enemy.is_played) else 0,
+            "EnemyCard3Attack" : player.enemy.is_played[2].attack if 2 < len(player.enemy.is_played) else 0,
+            "EnemyCard3HP" : player.enemy.is_played[2].hp if 2 < len(player.enemy.is_played) else 0,
+            "MyCard1CanAttack": 1 if 0 < len(player.is_played) and not player.is_played[0].is_used else 0,
+            "MyCard2CanAttack": 1 if 1 < len(player.is_played) and not player.is_played[1].is_used else 0,
+            "MyCard3CanAttack": 1 if 2 < len(player.is_played) and not player.is_played[2].is_used else 0,
         }
         return s
     
@@ -272,13 +319,13 @@ class CardGameEnv:
             for i in player.is_played:
                 reward += i.attack + i.hp
         #敵削った体力
-        reward += (player.enemy.maxhp - player.enemy.hp) * 3.0
+        reward += (player.enemy.maxhp - player.enemy.hp) * 2.0
         #敵カードの評価
         if len(player.is_played) > 0:
             for i in player.enemy.is_played:
-                reward -= i.attack + i.hp
+                reward -= 2.0*(i.attack + i.hp)
         #自分削られた体力
-        reward -= (player.maxhp - player.enemy.hp)*3.0
+        reward -= (player.maxhp - player.enemy.hp)*5.0
 
         #報酬のCliping
         if reward > 0:

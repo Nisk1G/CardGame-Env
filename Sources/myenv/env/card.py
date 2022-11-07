@@ -69,7 +69,9 @@ class Unit(Card):
         #ダメージ受けたのでhpからcnt引く
         self.hp -= cnt
         #死んでるか確認
-        if self.hp <= 0:
+        if self.hp < 0:
+            self.hp = 0
+        if self.hp == 0:
             print(self.player.name + "の" + self + "は破壊された")
             try:
                 self.player.is_played.remove(self)

@@ -1,5 +1,6 @@
 import random
 import card
+import numpy as np
 
 class Player1:
     #コンストラクタ
@@ -110,7 +111,10 @@ class Player1:
             return False
         #カードあったらランダムに一枚選ぶ
         else:
-            target = random.choice(self.enemy.is_played)
+            enemy_attack = []
+            for i in self.enemy.is_played:
+                enemy_attack.append(i.attack)
+            target = self.enemy.is_played[np.argmax(enemy_attack)]
             return target
             
 

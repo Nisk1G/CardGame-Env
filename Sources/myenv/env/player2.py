@@ -83,9 +83,9 @@ class Player2:
         else:
             #盤面分カードをループ
             for use_card in self.is_played:
-                #cardのusedがFalseなら使えない
+                #cardのusedがFalseなら攻撃できる
                 if use_card.is_used == False:
-                    #trueにして使えるようにする
+                    #trueにして使った判定
                     use_card.is_used == True
                     #target指定
                     target = self.selecttarget()
