@@ -15,13 +15,16 @@ def initdecks(player):
 
 #ゲーム開始時のドロー
 def inithands(player):
-    #どっちも3枚ドロー
+    #敵味方3枚ずつドロー
     player.draw()
     player.draw()
     player.draw()
     player.enemy.draw()
     player.enemy.draw()
     player.enemy.draw()
+    #player.enemy.draw()
+    #player.enemy.draw()
+
 
 #カードのis_used状態をリセット（ターン処理で呼ばれる)
 def resetuse(player):
@@ -31,28 +34,48 @@ def resetuse(player):
         else:
             played_card.is_used = False
 
+#プレイヤーのコストUpdate処理 (ターン処理で呼ばれる)
+def updatecost(player):
+    if player.turnmaxcost < player.maxcost:
+        player.turnmaxcost += 1
+    player.cost = player.turnmaxcost
+    print("updated cost")
+    print(player.name + ":" + str(player.cost))
+
 def doTurn(player):
     print ("")
     print ("--")
+
+    #敵が先手の場合
+
     #敵のカードドロー
-    #player.enemy.draw()
+    player.enemy.draw()
+    #敵がデッキ切れ起こしたらreturn
+    if player.enemy.is_deckend:
+        return
     #敵のカードプレイ
-    log = ""
+    log = player.enemy.playcard()
     log += player.enemy.usecard()
     #敵のresetuse
     resetuse(player.enemy)
+    #敵のupdatecost
+    updatecost(player.enemy)
     
     #敵の番でHP切れたらretrun
-    if(player.hp <= 0):
+    if player.is_dead:
         return
 
     print ("")
     print ("--")
     #自分も同じことする
-    #player.draw()
-    log = ""
+    player.draw()
+    #自分がデッキ切れ起こしたらreturn 
+    if player.is_deckend:
+        return
+    log = player.playcard()
     log += player.usecard()
     resetuse(player)
+    updatecost(player)
 
 def play():
     player = player2.Player2()
@@ -60,14 +83,6 @@ def play():
     initdecks(player)
 
     inithands(player)
-
-    #3枚ずつ場に出しとく
-    player.playcard()
-    player.playcard()
-    player.playcard()
-    player.enemy.playcard()
-    player.enemy.playcard()
-    player.enemy.playcard()
 
     resetuse(player)
     resetuse(player.enemy)
@@ -82,15 +97,13 @@ def play():
         doTurn(player)  
 
         #勝利条件
-        if player.hp <= 0:
+        #敵の勝利条件
+        if player.is_dead == True or player.is_deckend == True:
             print(player.enemy.name + "Win!!")
             sys.exit(player.enemy.name + "Win!!")
-        elif player.enemy.hp <= 0:
+        elif player.enemy.is_dead == True or player.enemy.is_deckend == True:
             print(player.name + "Win!!")
             sys.exit(player.name + "Win!!")
-        elif len(player.is_played) == 0 and len(player.enemy.is_played) == 0:
-            sys.exit("DROW")
-
 
 if __name__ == '__main__':
     print ("")

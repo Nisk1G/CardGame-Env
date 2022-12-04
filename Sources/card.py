@@ -13,6 +13,8 @@ class Card:
         self.player = player
         #name 名前
         self.name = "name"
+        #issee 手札カードaction管理用 ターン中確認したかどうか
+        self.is_see = False
 
     #strのオーバーライド
     def __str__(self):
@@ -46,13 +48,14 @@ class Card:
 class Unit(Card):
     
     #コンストラクタ
-    def __init__(self,name,player,attack,hp,activate=Card.activate,use=Card.use,discard=Card.discard):
+    def __init__(self,name,player,attack,hp,cost,activate=Card.activate,use=Card.use,discard=Card.discard):
         #親クラスのコンストラクタ呼び出し
         super().__init__(player)
-        #name:名前　attack:攻撃力 hp:体力
+        #name:名前　attack:攻撃力 hp:体力 cost:コスト
         self.name = name
         self.attack = attack
         self.hp = hp
+        self.cost = cost
         #後述のオーバーライド用に変数化
         self.act = activate
         self.u = use
@@ -60,7 +63,7 @@ class Unit(Card):
         
     #strオーバーライド
     def __str__(self):
-        s = "{"+ self.name + ": " + str(self.attack) + "," + str(self.hp) + "}"
+        s = "{"+ self.name + ": " + str(self.attack) + "," + str(self.hp) + "," + str(self.cost) + "}"
         return s
     
     #ダメージ受けた時呼ばれる関数
@@ -84,13 +87,15 @@ class Unit(Card):
     
     #activateのオーバーライド
     def activate(self):
-        print("")
+        #print("")
         self.act(self)
     
     #useのオーバーライド
     def use(self,target):
         if not self.u(self,target):
             print(self + "attacks" + target)
+            #is_used有効化
+            self.is_used = True
             target.damage(self.attack)
             if target.hp < 0:
                 target.hp = 0
