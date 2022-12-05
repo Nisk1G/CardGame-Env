@@ -105,7 +105,7 @@ class Player2:
                     eliminated_card = self.is_played.pop(-1)
                     self.discard.append(eliminated_card)
                 #カードをactivateさせる
-                play_card.activate()
+                play_card.activate(self)
                 #現段階ではとりあえず1枚プレイして終わっとく
                 break
         
@@ -116,25 +116,37 @@ class Player2:
         #自分の盤面に手札がなかったら
         if len(self.is_played) == 0:
             pass
-            #print(self.name + "は盤面にカードがありません")
+            print(self.name + "は盤面にカードがありません")
         else:
-            #盤面分カードをループ
-            for use_card in self.is_played:
-                #cardのusedがFalseなら攻撃できる
-                if use_card.is_used == False:
-                    #trueにして使った判定
-                    use_card.is_used == True
-                    #target指定
-                    target = self.selecttarget()
-                    #ターゲットが無ければ顔殴る
-                    if target == False:
-                        print(self.name + "は" + use_card + "で" + self.enemy.name + "を攻撃した")
-                        self.enemy.damage(use_card.attack)
-                        return ""
-                    else:
-                       #print("")
-                        print(self.name +"の攻撃")
-                        use_card.use(target)
+            while(1):
+                #盤面分カードをループ
+                for use_card in self.is_played:
+                    #cardのusedがFalseなら使えない
+                    if use_card.is_used == False:
+                        #trueにして使えるようにする
+                        use_card.is_used == True
+                        #target指定
+                        target = self.selecttarget()
+                        #ターゲットが無ければ顔殴る
+                        if target == False:
+                            print(self.name + "は" + use_card + "で" +  self.enemy.name + "を攻撃した")
+                            self.enemy.damage(use_card.attack)
+                            use_card.is_used = True
+
+                        else:
+                            #print("")
+                            print(self.name +"の攻撃")
+                            use_card.use(target)
+                #盤面全滅したか
+                if len(self.is_played) <= 0:
+                    break
+                #全部Trueになってたらbreak
+                sum = 0
+                for i in self.is_played:
+                    if i.is_used:
+                        sum += 1
+                if sum == len(self.is_played):
+                    break
         return ""
     
     #自分の手札からランダムに一枚選ぶ

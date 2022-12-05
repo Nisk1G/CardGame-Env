@@ -28,7 +28,7 @@ class Card:
         return other + str(self)
     
     #activate 場に出た時呼ばれる関数
-    def activate(self):
+    def activate(self,player):
         self.is_played = True
         return False
     
@@ -63,7 +63,7 @@ class Unit(Card):
         
     #strオーバーライド
     def __str__(self):
-        s = "{"+ self.name + ": " + str(self.attack) + "," + str(self.hp) + "," + str(self.cost) + "}"
+        s = "{"+ self.name + ": " + str(self.attack) + "," + str(self.hp) + "," + str(self.cost) + "," + str(self.is_used) + "}"
         return s
     
     #ダメージ受けた時呼ばれる関数
@@ -86,9 +86,9 @@ class Unit(Card):
             self.discard()
     
     #activateのオーバーライド
-    def activate(self):
+    def activate(self,player):
         #print("")
-        self.act(self)
+        self.act(self,player)
     
     #useのオーバーライド
     def use(self,target):
